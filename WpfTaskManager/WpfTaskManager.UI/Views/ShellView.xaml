@@ -1,0 +1,94 @@
+﻿<Window x:Class="WpfTaskManager.UI.Views.ShellView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfTaskManager.UI.Views"
+        xmlns:main="clr-namespace:WpfTaskManager.UI"
+        xmlns:cal="http://www.caliburnproject.org"
+        mc:Ignorable="d"
+        FontSize="16"
+        Title="Task Manager Application" Height="450" Width="800">
+    <Window.Resources>
+        <main:DueDateConverter x:Key="DueDateConverter01"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock >Current Date:</TextBlock>
+            <TextBlock x:Name="CurrentDate"></TextBlock>
+        </StackPanel>
+        <GroupBox Grid.Row="2" BorderBrush="Blue" BorderThickness="3">
+            <GroupBox.Header>
+                Create New task
+            </GroupBox.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <Label >Task Name:</Label>
+                    <TextBox x:Name="NewTaskName" Margin="10,0,10,0" MinWidth="100" Text="{Binding NewTaskName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                         Validation.ErrorTemplate="{StaticResource errorTemplate}"></TextBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <Label >Due Date:</Label>
+                    <DatePicker x:Name="NewDueDate" Margin="10,0,10,0" MinWidth="100" SelectedDate="{Binding NewDueDate, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                            Validation.ErrorTemplate="{StaticResource errorTemplate}"
+                            ></DatePicker>
+                </StackPanel>
+                <Button x:Name="NewTask" Grid.Column="2" cal:Message.Attach="AddTask" Margin="10" HorizontalAlignment="Center">Add New Task</Button>
+            </Grid>
+
+        </GroupBox>
+        <DataGrid x:Name="Tasks" Grid.Row="3" CanUserAddRows="False" AutoGenerateColumns="False" >
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=Status}" Value="Completed">
+                            <Setter Property="Background" Value="Green"></Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                    <Setter Property="Background" Value="{Binding Path=DueDate, Converter={StaticResource DueDateConverter01}}"></Setter>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" Width="*"/>
+                <DataGridTemplateColumn Header="Due Date" IsReadOnly="True" Width="Auto" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=DueDate,StringFormat=d}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Status" Binding="{Binding Path=Status}" Width="Auto"/>
+                <DataGridTemplateColumn Header="" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button cal:Message.Attach="CompletedTask($dataContext)" Margin="10">Complete</Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button cal:Message.Attach="RemoveTask($dataContext)"  Margin="10">Delete</Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+        </DataGrid>
+    </Grid>
+</Window>
